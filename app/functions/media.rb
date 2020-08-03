@@ -4,8 +4,17 @@ class Media
     media_metafield = variant.metafields.select{|m| m.namespace == "witty" and m.key == "media"}.first
     customer_metafield = customer.metafields.select{|m| m.namespace == "witty" and m.key == "media_library"}.first
     product = ShopifyAPI::Product.find variant.product_id
+    image = product.images.select{|i| i.id == variant.image_id }.first
 
-    media_metafield_info = media_metafield.value + '}{' + product.handle
+    unless image
+      image = product.images.first
+    end
+
+    if image
+      media_metafield_info = media_metafield.value + '}{' + product.title + '==' + image&.src
+    else
+      media_metafield_info = media_metafield.value + '}{' + product.title
+    end
 
     if media_metafield
       if customer_metafield
@@ -42,10 +51,15 @@ class Media
   def self.save_marketplace(customer, params)
     customer_metafield = customer.metafields.select{|m| m.namespace == "witty" and m.key == "media_library"}.first
     product = ShopifyAPI::Product.find params["product_id"]
+    image = product.images.first
 
     title = params["title"].gsub(/\(.*[a-zA-Z]{2}\)/, '').strip
-    full_url = title + "||" + params["url"] + '}{' + product.handle
-
+    if image
+      full_url = title + "||" + params["url"] + '}{' + product.handle + '==' + image.src
+    else
+      full_url = title + "||" + params["url"] + '}{' + product.handle
+    end
+ 
     if customer_metafield
       puts Colorize.cyan("metafield exists")
 
