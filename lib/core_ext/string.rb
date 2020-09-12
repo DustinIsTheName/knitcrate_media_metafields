@@ -23,12 +23,12 @@ class String
     else
       new_array = new_string.split('~').map{|s| s.strip}
 
-      puts old_tag_remote
-      puts self
+      # puts old_tag_remote
+      # puts self
       new_array = new_array.map { |s| if s.include? "#{old_tag_remote}}{" then "" else s end }
       new_array = new_array - [""]
 
-      new_array << '~ ' << tag unless new_string.include? tag
+      new_array << '~ ' << tag unless new_array.include? tag.strip
       new_array.uniq!
 
       if tag.include? "}{"
